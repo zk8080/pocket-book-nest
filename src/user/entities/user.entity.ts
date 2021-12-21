@@ -18,7 +18,7 @@ export class User {
   signature: string;
 
   @Exclude()
-  @Column({ length: 100 })
+  @Column({ length: 100, select: false })
   password: string;
 
   @Column({
