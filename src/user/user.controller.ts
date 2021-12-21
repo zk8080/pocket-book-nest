@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ClassSerializerInterceptor,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UserRo, UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -10,17 +21,18 @@ import { User } from './entities/user.entity';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({summary: '注册用户'})
+  @ApiOperation({ summary: '注册用户' })
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     return await this.userService.register(createUserDto);
   }
 
-  @ApiOperation({summary: '查找所有用户'})
+  @ApiOperation({ summary: '查找所有用户' })
   @ApiResponse({
     status: 200,
     type: CreateUserDto,
-    isArray: true
+    isArray: true,
   })
   @Get('findAll')
   async findAll(@Query() query): Promise<UserRo> {

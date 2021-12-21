@@ -1,4 +1,6 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Exclude } from 'class-transformer';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const bcrypt = require('bcryptjs');
 
 @Entity('user')
@@ -6,16 +8,17 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: number;
 
-  @Column({length: 100})
+  @Column({ length: 100 })
   username: string;
 
-  @Column({default: null})
+  @Column({ default: null })
   avatar: string;
 
-  @Column({default: null})
+  @Column({ default: null })
   signature: string;
 
-  @Column({length: 100})
+  @Exclude()
+  @Column({ length: 100 })
   password: string;
 
   @Column({
@@ -33,8 +36,8 @@ export class User {
   updateTime: Date;
 
   // 该方法在数据插入之前调用，这样就能保证插入数据库的密码都是加密后的。
-  @BeforeInsert() 
+  @BeforeInsert()
   async encryptPwd() {
-    this.password = await bcrypt.hashSync(this.password); 
-  } 
+    this.password = await bcrypt.hashSync(this.password);
+  }
 }

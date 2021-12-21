@@ -11,7 +11,6 @@ export interface UserRo {
 }
 @Injectable()
 export class UserService {
-
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -24,11 +23,11 @@ export class UserService {
     const existUser = await this.userRepository.findOne({
       where: { username },
     });
-    if(existUser){
-        throw new HttpException("用户名已存在", HttpStatus.BAD_REQUEST)
+    if (existUser) {
+      throw new HttpException('用户名已存在', HttpStatus.BAD_REQUEST);
     }
 
-    const newUser = await this.userRepository.create(createUser)
+    const newUser = await this.userRepository.create(createUser);
     return await this.userRepository.save(newUser);
   }
 
