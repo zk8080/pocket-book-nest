@@ -9,10 +9,10 @@ export class User {
   @Column({length: 100})
   username: string;
 
-  @Column()
+  @Column({default: null})
   avatar: string;
 
-  @Column()
+  @Column({default: null})
   signature: string;
 
   @Column({length: 100})
