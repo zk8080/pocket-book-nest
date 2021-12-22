@@ -9,12 +9,20 @@ import {
   Query,
   ClassSerializerInterceptor,
   UseInterceptors,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { UserRo, UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('用户')
 @Controller('user')
@@ -37,6 +45,14 @@ export class UserController {
   @Get('findAll')
   async findAll(@Query() query): Promise<UserRo> {
     return await this.userService.findAll(query);
+  }
+
+  @ApiOperation({ summary: '获取用户信息' })
+  @ApiBearerAuth() // swagger文档设置token
+  @UseGuards(AuthGuard('jwt'))
+  @Get()
+  getUserInfo(@Req() req) {
+    return req.user;
   }
 
   // @Get(':id')

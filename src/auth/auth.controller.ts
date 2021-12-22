@@ -26,7 +26,7 @@ export class AuthController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('login')
   login(@Body() user: LoginDto, @Req() req) {
-    return req.user;
+    return this.authService.login(user);
   }
 
   @Get()

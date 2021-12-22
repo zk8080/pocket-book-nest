@@ -5,10 +5,23 @@ import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LocalStorage } from './local.strategy';
 import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { JwtStorage } from './jwt.strategy';
+
+const jwtModule = JwtModule.registerAsync({
+  inject: [ConfigService],
+  useFactory: async (configService: ConfigService) => {
+    return {
+      secret: configService.get('SECRET', 'test123456'),
+      signOptions: { expiresIn: '4h' },
+    };
+  },
+});
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), PassportModule],
+  imports: [TypeOrmModule.forFeature([User]), PassportModule, jwtModule],
   controllers: [AuthController],
-  providers: [AuthService, LocalStorage],
+  providers: [AuthService, LocalStorage, JwtStorage],
 })
 export class AuthModule {}
