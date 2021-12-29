@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 @Entity('user')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column({ length: 100 })
   username: string;
