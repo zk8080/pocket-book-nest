@@ -8,12 +8,14 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { BillService } from './bill.service';
 import { CreateBillDto } from './dto/create-bill.dto';
 import { UpdateBillDto } from './dto/update-bill.dto';
+import { QueryBillDto } from './dto/query-bill.dto';
 
 @ApiTags('账单')
 @Controller('bill')
@@ -28,9 +30,11 @@ export class BillController {
     return this.billService.create({ ...createBillDto, user_id: id });
   }
 
-  @Get()
-  findAll() {
-    return this.billService.findAll();
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth() // swagger文档设置token
+  @Get('list')
+  findAll(@Query() queryBillDto: QueryBillDto, @Req() req) {
+    return this.billService.findAll(queryBillDto, req.user);
   }
 
   @Get(':id')
