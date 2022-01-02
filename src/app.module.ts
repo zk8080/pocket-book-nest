@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeModule } from './type/type.module';
+import { BillModule } from './bill/bill.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { TypeModule } from './type/type.module';
     UserModule,
     AuthModule,
     TypeModule,
+    BillModule,
   ],
   controllers: [AppController],
   providers: [AppService],
