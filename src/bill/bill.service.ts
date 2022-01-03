@@ -1,6 +1,6 @@
 import { QueryBillDto } from './dto/query-bill.dto';
 import { Bill } from './entities/bill.entity';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateBillDto } from './dto/create-bill.dto';
@@ -16,7 +16,8 @@ export class BillService {
 
   async create(createBillDto: CreateBillDto) {
     const newBill = await this.billRepository.create(createBillDto);
-    return await this.billRepository.save(newBill);
+    await this.billRepository.save(newBill);
+    return;
   }
 
   async findAll(queryBillDto: QueryBillDto, user) {
@@ -26,10 +27,6 @@ export class BillService {
     // 过滤出月份和类型所对应的账单列表
     const _list = originList.filter((item) => {
       if (type_id !== 0) {
-        console.log(
-          moment(String(item.date)).format('YYYY-MM'),
-          '--item.date--',
-        );
         return (
           moment(String(item.date)).format('YYYY-MM') == date &&
           type_id == item.type_id
@@ -110,15 +107,26 @@ export class BillService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} bill`;
+  async findOne(id: number) {
+    return await this.billRepository.findOne(id);
   }
 
-  update(id: number, updateBillDto: UpdateBillDto) {
-    return `This action updates a #${id} bill`;
+  async update(id: number, updateBillDto: UpdateBillDto) {
+    const curBill = await this.billRepository.findOne(id);
+    if (!curBill) {
+      throw new HttpException('该账单不存在', HttpStatus.BAD_REQUEST);
+    }
+    const updatePost = this.billRepository.merge(curBill, updateBillDto);
+    await this.billRepository.save(updatePost);
+    return;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} bill`;
+  async remove(id: number) {
+    const curBill = await this.billRepository.findOne(id);
+    if (!curBill) {
+      throw new HttpException('该账单不存在', HttpStatus.BAD_REQUEST);
+    }
+    await this.billRepository.remove(curBill);
+    return;
   }
 }

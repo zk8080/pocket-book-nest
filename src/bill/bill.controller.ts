@@ -37,16 +37,22 @@ export class BillController {
     return this.billService.findAll(queryBillDto, req.user);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth() // swagger文档设置token
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.billService.findOne(+id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth() // swagger文档设置token
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBillDto: UpdateBillDto) {
     return this.billService.update(+id, updateBillDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth() // swagger文档设置token
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.billService.remove(+id);
