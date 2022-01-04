@@ -16,6 +16,7 @@ import { BillService } from './bill.service';
 import { CreateBillDto } from './dto/create-bill.dto';
 import { UpdateBillDto } from './dto/update-bill.dto';
 import { QueryBillDto } from './dto/query-bill.dto';
+import { BillDataDto } from './dto/bill-data.dto';
 
 @ApiTags('账单')
 @Controller('bill')
@@ -35,6 +36,13 @@ export class BillController {
   @Get('list')
   findAll(@Query() queryBillDto: QueryBillDto, @Req() req) {
     return this.billService.findAll(queryBillDto, req.user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth() // swagger文档设置token
+  @Get('data')
+  data(@Query() billBillDto: BillDataDto, @Req() req) {
+    return this.billService.getData(billBillDto, req.user);
   }
 
   @UseGuards(AuthGuard('jwt'))

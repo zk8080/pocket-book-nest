@@ -1,3 +1,4 @@
+import { BillDataDto } from './dto/bill-data.dto';
 import { QueryBillDto } from './dto/query-bill.dto';
 import { Bill } from './entities/bill.entity';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
@@ -6,6 +7,7 @@ import { Repository } from 'typeorm';
 import { CreateBillDto } from './dto/create-bill.dto';
 import { UpdateBillDto } from './dto/update-bill.dto';
 import * as moment from 'moment';
+import { BillDataRes } from './bill.interface';
 
 @Injectable()
 export class BillService {
@@ -128,5 +130,62 @@ export class BillService {
     }
     await this.billRepository.remove(curBill);
     return;
+  }
+
+  async getData(billDataDto: BillDataDto, user) {
+    try {
+      const { date } = billDataDto;
+      const { id: user_id } = user;
+      const originList = await this.billRepository.find({ where: { user_id } });
+      const start = moment(date).startOf('month').unix() * 1000; // 选择月份，月初时间
+      const end = moment(date).endOf('month').unix() * 1000; // 选择月份，月末时间
+      const _data = originList.filter((item) => {
+        if (Number(item.date) > start && Number(item.date) < end) {
+          return item;
+        }
+      });
+
+      // 总支出
+      const total_expense = _data.reduce((arr, cur) => {
+        if (cur.pay_type == 1) {
+          arr += Number(cur.amount);
+        }
+        return arr;
+      }, 0);
+
+      // 总收入
+      const total_income = _data.reduce((arr, cur) => {
+        if (cur.pay_type == 2) {
+          arr += Number(cur.amount);
+        }
+        return arr;
+      }, 0);
+
+      // 获取收支构成
+      const total_data = _data.reduce<BillDataRes[]>((arr, cur) => {
+        const index = arr.findIndex((item) => item.type_id == cur.type_id);
+        if (index === -1) {
+          arr.push({
+            type_id: cur.type_id,
+            type_name: cur.type_name,
+            pay_type: cur.pay_type,
+            amount: Number(Number(cur.amount).toFixed(2)),
+          });
+        }
+        if (index > -1) {
+          arr[index].amount += Number(Number(cur.amount).toFixed(2));
+        }
+        return arr;
+      }, []);
+
+      return {
+        total_expense: Number(total_expense).toFixed(2),
+        total_income: Number(total_income).toFixed(2),
+        total_data: total_data || [],
+      };
+    } catch (e) {
+      console.log(e);
+      throw new HttpException(e, HttpStatus.BAD_REQUEST);
+    }
   }
 }
